@@ -5,350 +5,239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Шеберқол — Handmade маркетплейс Казахстана</title>
     <meta name="description" content="Шеберқол — маркетплейс уникальных handmade товаров от мастеров Казахстана">
+    <meta property="og:title" content="Шеберқол — Handmade маркетплейс Казахстана">
+    <meta property="og:description" content="Уникальные изделия ручной работы от мастеров Казахстана">
+    <meta property="og:type" content="website">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
-        .modal { display: none; }
-        .modal.active { display: flex; }
-        input, button, textarea { font-size: 16px; }
+        .product-card:hover { transform: translateY(-4px); }
+        .cart-badge { position: absolute; top: -8px; right: -8px; }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-800">
-
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
             <a href="#" class="flex items-center gap-2 text-2xl font-bold text-orange-600">
                 <i class="fas fa-hand-holding-heart"></i>
                 Шеберқол
             </a>
-            <div class="flex-1 max-w-xl hidden md:block">
+            <div class="flex-1 max-w-xl">
                 <div class="relative">
                     <input id="search" type="text" placeholder="Искать handmade товары..." class="w-full pl-10 pr-4 py-2.5 border border-stone-300 rounded-full focus:outline-none focus:border-orange-500">
                     <i class="fas fa-search absolute left-4 top-3 text-stone-400"></i>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openModal('login')" id="loginBtn" class="px-4 py-2.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 text-sm">Войти</button>
-                <button onclick="openModal('register')" id="registerBtn" class="px-4 py-2.5 border border-orange-600 text-orange-600 rounded-full hover:bg-orange-50 text-sm hidden md:block">Регистрация</button>
-                <div id="userMenu" class="hidden relative">
-                    <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-stone-100">
-                        <i class="fas fa-user-circle text-xl text-orange-600"></i>
-                        <span id="userName" class="text-sm font-medium"></span>
-                    </button>
-                    <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-stone-50 text-sm">Профиль</a>
-                        <a href="#" id="sellerLink" class="block px-4 py-2 hover:bg-stone-50 text-sm hidden">Мои товары</a>
-                        <button onclick="logout()" class="w-full text-left px-4 py-2 hover:bg-stone-50 text-sm text-red-600">Выйти</button>
-                    </div>
-                </div>
+            <div class="flex items-center gap-4">
+                <button class="relative p-2 hover:bg-stone-100 rounded-full" onclick="toggleCart()">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                    <span id="cart-count" class="cart-badge bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                </button>
+                <button class="hidden md:block px-4 py-2 bg-orange-600 text-white rounded-full hover:bg-orange-700">Войти</button>
             </div>
         </div>
+        <!-- Categories nav -->
+        <nav class="border-t bg-white overflow-x-auto">
+            <div class="max-w-7xl mx-auto px-4 flex gap-2 py-2">
+                <button class="category-btn px-4 py-1.5 rounded-full bg-orange-600 text-white text-sm whitespace-nowrap" data-cat="all">Все</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="jewelry">Ювелирные</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="textiles">Текстиль</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="pottery">Керамика</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="wood">Дерево</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="art">Живопись</button>
+                <button class="category-btn px-4 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-sm whitespace-nowrap" data-cat="leather">Кожа</button>
+            </div>
+        </nav>
     </header>
 
-    <!-- Main -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-stone-900 mb-4">Шеберқол</h1>
-            <p class="text-xl text-stone-600">Маркетплейс handmade товаров от мастеров Казахстана</p>
-            <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="openModal('registerBuyer')" class="px-6 py-3.5 bg-orange-600 text-white rounded-full hover:bg-orange-700 text-base">Регистрация покупателя</button>
-                <button onclick="openModal('registerSeller')" class="px-6 py-3.5 bg-stone-800 text-white rounded-full hover:bg-stone-900 text-base">Стать продавцом</button>
-            </div>
+    <!-- Hero -->
+    <section class="bg-gradient-to-r from-orange-50 to-amber-50 py-16">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">Уникальные изделия ручной работы<br>от мастеров Казахстана</h1>
+            <p class="text-lg text-stone-600 max-w-2xl mx-auto">Шеберқол — маркетплейс, где талантливые ремесленники продают свои handmade товары напрямую покупателям по всей стране.</p>
+            <button class="mt-6 px-8 py-3 bg-orange-600 text-white rounded-full text-lg hover:bg-orange-700">Начать покупки</button>
         </div>
-        <div id="welcomeMsg" class="hidden text-center p-6 bg-green-50 rounded-xl border border-green-200 max-w-lg mx-auto">
-            <p class="text-green-800 font-medium">Добро пожаловать, <span id="welcomeName"></span>!</p>
-        </div>
+    </section>
+
+    <!-- Products -->
+    <main class="max-w-7xl mx-auto px-4 py-10">
+        <h2 class="text-2xl font-bold mb-6">Популярные товары</h2>
+        <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
     </main>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Вход</h2>
-                <button onclick="closeModal('login')" class="text-stone-400 hover:text-stone-600 p-2"><i class="fas fa-times text-xl"></i></button>
+    <!-- Footer -->
+    <footer class="bg-stone-800 text-stone-300 py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
+            <div>
+                <div class="text-2xl font-bold text-white mb-3 flex items-center gap-2"><i class="fas fa-hand-holding-heart text-orange-500"></i> Шеберқол</div>
+                <p class="text-sm">Маркетплейс handmade товаров для Казахстана. Поддерживайте местных мастеров!</p>
             </div>
-            <form onsubmit="login(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Пароль</label>
-                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-orange-600 text-white py-3.5 rounded-lg hover:bg-orange-700 text-base">Войти</button>
-            </form>
-            <p class="text-center mt-4 text-sm">
-                <button onclick="switchModal('login', 'recovery')" class="text-orange-600 hover:underline">Забыли пароль?</button>
-            </p>
-            <p class="text-center mt-2 text-sm">Нет аккаунта? 
-                <button onclick="switchModal('login', 'register')" class="text-orange-600 hover:underline">Зарегистрироваться</button>
-            </p>
+            <div>
+                <h3 class="text-white font-semibold mb-3">Покупателям</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="#" class="hover:text-white">Как купить</a></li>
+                    <li><a href="#" class="hover:text-white">Доставка</a></li>
+                    <li><a href="#" class="hover:text-white">Возвраты</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-semibold mb-3">Продавцам</h3>
+                <ul class="text-sm space-y-2">
+                    <li><a href="#" class="hover:text-white">Открыть магазин</a></li>
+                    <li><a href="#" class="hover:text-white">Комиссии</a></li>
+                    <li><a href="#" class="hover:text-white">Поддержка</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-white font-semibold mb-3">Контакты</h3>
+                <p class="text-sm">Алматы, Казахстан<br>info@sheberqol.kz</p>
+            </div>
+        </div>
+        <div class="text-center text-sm mt-8 pt-8 border-t border-stone-700">© 2026 Шеберқол. Все права защищены.</div>
+    </footer>
+
+    <!-- Product Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="relative">
+                <img id="modal-img" class="w-full h-64 object-cover rounded-t-2xl" src="">
+                <button onclick="closeModal()" class="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6">
+                <h2 id="modal-title" class="text-2xl font-bold mb-2"></h2>
+                <p id="modal-seller" class="text-sm text-stone-500 mb-3"></p>
+                <p id="modal-price" class="text-2xl font-bold text-orange-600 mb-4"></p>
+                <p id="modal-desc" class="text-stone-600 mb-6"></p>
+                <button onclick="addToCartFromModal()" class="w-full py-3 bg-orange-600 text-white rounded-full hover:bg-orange-700 font-semibold">Добавить в корзину</button>
+            </div>
         </div>
     </div>
 
-    <!-- Register Choice -->
-    <div id="registerModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Регистрация</h2>
-                <button onclick="closeModal('register')" class="text-stone-400 hover:text-stone-600 p-2"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="space-y-3">
-                <button onclick="switchModal('register', 'registerBuyer')" class="w-full p-4 border-2 border-orange-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 text-left">
-                    <div class="font-semibold">Я покупатель</div>
-                    <div class="text-sm text-stone-500">Хочу покупать handmade товары</div>
-                </button>
-                <button onclick="switchModal('register', 'registerSeller')" class="w-full p-4 border-2 border-stone-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 text-left">
-                    <div class="font-semibold">Я мастер / продавец</div>
-                    <div class="text-sm text-stone-500">Хочу продавать свои изделия</div>
-                </button>
-            </div>
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform z-50">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-lg">Корзина</h3>
+            <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
         </div>
-    </div>
-
-    <!-- Buyer Registration -->
-    <div id="registerBuyerModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-2xl font-bold">Регистрация покупателя</h2>
-                <button onclick="closeModal('registerBuyer')" class="text-stone-400 hover:text-stone-600 p-2"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="mb-4">
-                <div class="flex justify-between text-xs text-stone-500 mb-1">
-                    <span>Шаг 1 из 2</span>
-                    <span>Личные данные</span>
-                </div>
-                <div class="w-full bg-stone-200 rounded-full h-1.5">
-                    <div class="bg-orange-600 h-1.5 rounded-full" style="width: 50%"></div>
-                </div>
-            </div>
-            <form onsubmit="registerBuyer(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Имя</label>
-                    <input type="text" id="buyerName" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" id="buyerEmail" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Телефон</label>
-                    <input type="tel" id="buyerPhone" placeholder="+7" class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Пароль</label>
-                    <input type="password" id="buyerPassword" required minlength="6" oninput="checkPasswordStrength(this)" class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                    <div id="buyerStrength" class="mt-1 text-xs h-4"></div>
-                </div>
-                <label class="flex items-start gap-2 text-sm">
-                    <input type="checkbox" required class="mt-1">
-                    <span>Я согласен с <a href="#" class="text-orange-600 underline">правилами</a> и <a href="#" class="text-orange-600 underline">политикой конфиденциальности</a></span>
-                </label>
-                <button type="submit" class="w-full bg-orange-600 text-white py-3.5 rounded-lg hover:bg-orange-700 text-base">Зарегистрироваться</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Seller Registration -->
-    <div id="registerSellerModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-2xl font-bold">Регистрация продавца</h2>
-                <button onclick="closeModal('registerSeller')" class="text-stone-400 hover:text-stone-600 p-2"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="mb-4">
-                <div class="flex justify-between text-xs text-stone-500 mb-1">
-                    <span>Шаг 1 из 2</span>
-                    <span>Данные мастерской</span>
-                </div>
-                <div class="w-full bg-stone-200 rounded-full h-1.5">
-                    <div class="bg-orange-600 h-1.5 rounded-full" style="width: 50%"></div>
-                </div>
-            </div>
-            <form onsubmit="registerSeller(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Ваше имя</label>
-                    <input type="text" id="sellerName" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Название мастерской</label>
-                    <input type="text" id="workshopName" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Город</label>
-                    <input type="text" id="sellerCity" required placeholder="Алматы, Астана, Актобе..." class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" id="sellerEmail" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Телефон</label>
-                    <input type="tel" id="sellerPhone" required placeholder="+7" class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Краткое описание</label>
-                    <textarea id="sellerDesc" rows="3" class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Пароль</label>
-                    <input type="password" id="sellerPassword" required minlength="6" oninput="checkPasswordStrength(this, 'sellerStrength')" class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                    <div id="sellerStrength" class="mt-1 text-xs h-4"></div>
-                </div>
-                <label class="flex items-start gap-2 text-sm">
-                    <input type="checkbox" required class="mt-1">
-                    <span>Я согласен с <a href="#" class="text-orange-600 underline">правилами</a> и <a href="#" class="text-orange-600 underline">политикой конфиденциальности</a></span>
-                </label>
-                <button type="submit" class="w-full bg-stone-800 text-white py-3.5 rounded-lg hover:bg-stone-900 text-base">Зарегистрироваться как продавец</button>
-            </form>
-            <p class="text-xs text-stone-500 mt-3 text-center">После регистрации аккаунт продавца будет проверен администратором.</p>
-        </div>
-    </div>
-
-    <!-- Password Recovery -->
-    <div id="recoveryModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Восстановление пароля</h2>
-                <button onclick="closeModal('recovery')" class="text-stone-400 hover:text-stone-600 p-2"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <form onsubmit="recoverPassword(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Email</label>
-                    <input type="email" id="recoveryEmail" required class="w-full px-4 py-3 border rounded-lg focus:border-orange-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-orange-600 text-white py-3.5 rounded-lg hover:bg-orange-700 text-base">Отправить ссылку</button>
-            </form>
-            <p id="recoveryMsg" class="hidden mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm"></p>
-            <p class="text-center mt-4 text-sm">
-                <button onclick="switchModal('recovery', 'login')" class="text-orange-600 hover:underline">Вернуться ко входу</button>
-            </p>
+        <div id="cart-items" class="p-4 overflow-y-auto h-[calc(100%-140px)]"></div>
+        <div class="p-4 border-t absolute bottom-0 w-full bg-white">
+            <div class="flex justify-between mb-3 font-bold"><span>Итого:</span> <span id="cart-total">0 ₸</span></div>
+            <button class="w-full py-3 bg-orange-600 text-white rounded-full">Оформить заказ</button>
         </div>
     </div>
 
     <script>
-        function getUsers() { return JSON.parse(localStorage.getItem('sheberqol_users') || '[]'); }
-        function saveUsers(users) { localStorage.setItem('sheberqol_users', JSON.stringify(users)); }
-        function setCurrentUser(user) {
-            if (user) localStorage.setItem('sheberqol_current', JSON.stringify(user));
-            else localStorage.removeItem('sheberqol_current');
-            updateUI();
-        }
-        function getCurrentUser() { return JSON.parse(localStorage.getItem('sheberqol_current') || 'null'); }
+        const products = [
+            { id: 1, title: "Серебряное ожерелье с бирюзой", price: 28000, category: "jewelry", seller: "Мастерская Айгуль", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800", desc: "Изящное серебряное ожерелье с натуральной бирюзой. Ручная работа казахстанского мастера. Отличный подарок." },
+            { id: 2, title: "Кулон с бирюзой в серебре", price: 15000, category: "jewelry", seller: "Нурлан Серебряник", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800", desc: "Крупный кулон с бирюзой в традиционном стиле. Серебро 925 пробы." },
+            { id: 3, title: "Войлочный сырмак", price: 120000, category: "textiles", seller: "Асель Войлок", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Shyrdak_on_floor.jpg/1280px-Shyrdak_on_floor.jpg", desc: "Традиционный казахский войлочный ковер сырмак с национальными орнаментами. Ручная валка." },
+            { id: 4, title: "Набор войлочных ковриков", price: 85000, category: "textiles", seller: "Мастерская Степь", image: "https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=800", desc: "Яркие войлочные коврики с традиционными узорами. Идеально для дома." },
+            { id: 5, title: "Набор керамических кружек", price: 12000, category: "pottery", seller: "Гончар Данияр", image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800", desc: "Комплект из 4 уникальных керамических кружек ручной работы с растительными мотивами." },
+            { id: 6, title: "Деревянная шкатулка", price: 22000, category: "wood", seller: "Резчик Ерлан", image: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=800", desc: "Шкатулка из натурального дерева с ящиками. Ручная резьба и сборка." },
+            { id: 7, title: "Картина «Озеро Кольсай»", price: 45000, category: "art", seller: "Художник Марат", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", desc: "Живописный пейзаж озера Кольсай. Масло на холсте. Авторская работа." },
+            { id: 8, title: "Кожаный кошелек", price: 7500, category: "leather", seller: "Кожевник Асхат", image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800", desc: "Минималистичный кожаный кошелек ручной работы из натуральной кожи." },
+            { id: 9, title: "Браслеты из бисера", price: 4500, category: "jewelry", seller: "Бисерная Мадина", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800", desc: "Яркие браслеты из стеклянного бисера. Легкие и стильные." },
+            { id: 10, title: "Вязаный шарф из шерсти", price: 6800, category: "textiles", seller: "Вязальщица Гульнара", image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?w=800", desc: "Теплый шарф ручной вязки из натуральной шерсти. Отлично согревает зимой." }
+        ];
 
-        function updateUI() {
-            const user = getCurrentUser();
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const userMenu = document.getElementById('userMenu');
-            const userName = document.getElementById('userName');
-            const welcome = document.getElementById('welcomeMsg');
-            const welcomeName = document.getElementById('welcomeName');
-            const sellerLink = document.getElementById('sellerLink');
+        let cart = [];
+        let currentCategory = "all";
+        let currentModalProduct = null;
 
-            if (user) {
-                loginBtn.classList.add('hidden');
-                registerBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-                userName.textContent = user.name;
-                welcome.classList.remove('hidden');
-                welcomeName.textContent = user.name;
-                if (user.role === 'seller') sellerLink.classList.remove('hidden');
-            } else {
-                loginBtn.classList.remove('hidden');
-                registerBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-                welcome.classList.add('hidden');
-            }
+        function formatPrice(p) { return p.toLocaleString('ru-KZ') + ' ₸'; }
+
+        function renderProducts(filtered = products) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transition" onclick="openModal(${p.id})">
+                    <img src="${p.image}" alt="${p.title}" class="w-full h-48 object-cover">
+                    <div class="p-3">
+                        <h3 class="font-medium text-sm line-clamp-2 mb-1">${p.title}</h3>
+                        <p class="text-xs text-stone-500 mb-2">${p.seller}</p>
+                        <p class="font-bold text-orange-600">${formatPrice(p.price)}</p>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function openModal(name) { document.getElementById(name + 'Modal').classList.add('active'); }
-        function closeModal(name) { document.getElementById(name + 'Modal').classList.remove('active'); }
-        function switchModal(from, to) { closeModal(from); openModal(to); }
-        function toggleUserDropdown() { document.getElementById('userDropdown').classList.toggle('hidden'); }
-
-        function checkPasswordStrength(input, targetId = 'buyerStrength') {
-            const val = input.value;
-            const el = document.getElementById(targetId);
-            if (val.length < 6) { el.textContent = 'Слишком короткий'; el.className = 'mt-1 text-xs h-4 text-red-500'; }
-            else if (val.length < 8) { el.textContent = 'Средний'; el.className = 'mt-1 text-xs h-4 text-yellow-600'; }
-            else { el.textContent = 'Надёжный'; el.className = 'mt-1 text-xs h-4 text-green-600'; }
+        function openModal(id) {
+            const p = products.find(x => x.id === id);
+            currentModalProduct = p;
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-title').textContent = p.title;
+            document.getElementById('modal-seller').textContent = p.seller;
+            document.getElementById('modal-price').textContent = formatPrice(p.price);
+            document.getElementById('modal-desc').textContent = p.desc;
+            document.getElementById('modal').classList.remove('hidden');
         }
 
-        function registerBuyer(e) {
-            e.preventDefault();
-            const users = getUsers();
-            const email = document.getElementById('buyerEmail').value;
-            if (users.find(u => u.email === email)) { alert('Пользователь с таким email уже существует'); return; }
-            const user = {
-                id: Date.now(), role: 'buyer',
-                name: document.getElementById('buyerName').value,
-                email, phone: document.getElementById('buyerPhone').value,
-                password: document.getElementById('buyerPassword').value
-            };
-            users.push(user); saveUsers(users); setCurrentUser(user);
-            closeModal('registerBuyer');
-            alert('Регистрация успешна! Добро пожаловать.');
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
         }
 
-        function registerSeller(e) {
-            e.preventDefault();
-            const users = getUsers();
-            const email = document.getElementById('sellerEmail').value;
-            if (users.find(u => u.email === email)) { alert('Пользователь с таким email уже существует'); return; }
-            const user = {
-                id: Date.now(), role: 'seller',
-                name: document.getElementById('sellerName').value,
-                workshop: document.getElementById('workshopName').value,
-                city: document.getElementById('sellerCity').value,
-                email, phone: document.getElementById('sellerPhone').value,
-                description: document.getElementById('sellerDesc').value,
-                password: document.getElementById('sellerPassword').value,
-                verified: false
-            };
-            users.push(user); saveUsers(users); setCurrentUser(user);
-            closeModal('registerSeller');
-            alert('Регистрация продавца успешна! Ваш аккаунт будет проверен администратором.');
+        function addToCartFromModal() {
+            if (currentModalProduct) addToCart(currentModalProduct);
+            closeModal();
         }
 
-        function login(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const users = getUsers();
-            const user = users.find(u => u.email === email && u.password === password);
-            if (user) { setCurrentUser(user); closeModal('login'); }
-            else alert('Неверный email или пароль');
+        function addToCart(product) {
+            const existing = cart.find(i => i.id === product.id);
+            if (existing) existing.qty++;
+            else cart.push({ ...product, qty: 1 });
+            updateCart();
         }
 
-        function logout() {
-            setCurrentUser(null);
-            document.getElementById('userDropdown').classList.add('hidden');
+        function updateCart() {
+            const count = cart.reduce((s, i) => s + i.qty, 0);
+            const badge = document.getElementById('cart-count');
+            badge.textContent = count;
+            badge.classList.toggle('hidden', count === 0);
+            const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            document.getElementById('cart-total').textContent = formatPrice(total);
+            document.getElementById('cart-items').innerHTML = cart.length ? cart.map(i => `
+                <div class="flex gap-3 mb-4">
+                    <img src="${i.image}" class="w-16 h-16 object-cover rounded">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${i.title}</p>
+                        <p class="text-sm text-orange-600">${formatPrice(i.price)} × ${i.qty}</p>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-stone-400 text-center mt-10">Корзина пуста</p>';
         }
 
-        function recoverPassword(e) {
-            e.preventDefault();
-            const email = document.getElementById('recoveryEmail').value;
-            const users = getUsers();
-            const user = users.find(u => u.email === email);
-            const msg = document.getElementById('recoveryMsg');
-            if (user) {
-                msg.textContent = 'Ссылка для сброса пароля отправлена на ' + email + ' (в демо пароль: ' + user.password + ')';
-                msg.classList.remove('hidden');
-            } else {
-                msg.textContent = 'Пользователь с таким email не найден';
-                msg.classList.remove('hidden');
-            }
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
         }
 
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+        // Category filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('bg-orange-600', 'text-white');
+                    b.classList.add('bg-stone-100');
+                });
+                btn.classList.add('bg-orange-600', 'text-white');
+                btn.classList.remove('bg-stone-100');
+                currentCategory = btn.dataset.cat;
+                filterProducts();
+            });
         });
 
-        updateUI();
+        // Search
+        document.getElementById('search').addEventListener('input', filterProducts);
+
+        function filterProducts() {
+            const q = document.getElementById('search').value.toLowerCase();
+            let filtered = products;
+            if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
+            if (q) filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.seller.toLowerCase().includes(q));
+            renderProducts(filtered);
+        }
+
+        // Init
+        renderProducts();
     </script>
 </body>
 </html>
